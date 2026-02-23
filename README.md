@@ -170,6 +170,22 @@ Example report summary from the retail dataset:
 
 ---
 
+## Contributing
+
+Contributions are welcome! If you find a bug, have a feature request, or want to improve the code, feel free to open an issue or submit a pull request.
+
+1. Fork the repo
+2. Create a new branch (`git checkout -b feature/your-feature`)
+3. Make your changes
+4. Commit your changes (`git commit -m "Add your feature"`)
+5. Push to the branch (`git push origin feature/your-feature`)
+6. Open a Pull Request
+
+Please keep PRs focused — one feature or fix per PR makes reviewing much easier.
+
+---
+
+
 ## Roadmap
 
 - [ ] Excel (`.xlsx`) and JSON input support
