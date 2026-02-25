@@ -11,3 +11,6 @@ env/
 
 .env
 *.log
+
+data/cleaned/
+reports/
