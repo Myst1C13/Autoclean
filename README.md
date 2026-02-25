@@ -23,7 +23,7 @@ AutoClean is a general-purpose CSV data cleaning pipeline that profiles your dat
 
 ```
 autoclean/
-├── src/
+├── autoclean/
 │   ├── __init__.py
 │   ├── main.py         — pipeline entry point (load → profile → clean → save → report)
 │   ├── cli.py          — command-line interface
@@ -46,7 +46,7 @@ autoclean/
 Requires Python 3.9+
 
 ```bash
-pip install pandas numpy rich
+pip install -r requirements.txt
 ```
 
 ---
@@ -56,13 +56,13 @@ pip install pandas numpy rich
 ### Command Line
 
 ```bash
-python src/cli.py --input data/raw/your_file.csv
+python -m autoclean.cli --input data/raw/your_file.csv
 ```
 
 With all options:
 
 ```bash
-python src/cli.py \
+python -m autoclean.cli \
   --input  data/raw/sales.csv \
   --output data/cleaned/sales_clean.csv \
   --report reports/run_report.json
@@ -77,7 +77,7 @@ python src/cli.py \
 ### Python
 
 ```python
-from main import run_pipeline
+from autoclean import run_pipeline
 
 before, after, changes = run_pipeline(
     input_path="data/raw/sales.csv",
@@ -97,31 +97,34 @@ Here's AutoClean running on a retail sales dataset with 12,575 rows:
 
 ```
 ╭─────────────────────────────────╮
-│ AutoClean                       │
+│ AutoClean++                     │
 │ Intelligent Data Quality Engine │
 ╰─────────────────────────────────╯
 
-         Data Quality Summary
-┌─────────────┬─────────┬──────────┐
-│ Metric      │  Before │    After │
-├─────────────┼─────────┼──────────┤
-│ Rows        │   12575 │    12575 │
-│ Missing %   │    5.23 │     0.88 │
-│ Duplicate % │    0.00 │     0.00 │
-│ Outlier %   │    0.04 │     0.00 │
-│ Health Score│   97.90 │    99.65 │
-└─────────────┴─────────┴──────────┘
+       Data Quality Summary
+┌──────────────┬────────┬────────┐
+│ Metric       │ Before │  After │
+├──────────────┼────────┼────────┤
+│ Rows         │  12575 │  12575 │
+│ Missing %    │   5.23 │   0.00 │
+│ Duplicate %  │   0.00 │   0.00 │
+│ Outlier %    │   0.04 │   0.00 │
+│ Health Score │  97.90 │ 100.00 │
+└──────────────┴────────┴────────┘
 
 Cleaning Actions
-  • try_parse_datetime: transaction_date
+  • normalize_strings: stripped whitespace + standardized missing markers
+  • try_parse_datetime: transaction_date (na 0->0)
   • try_parse_bool: discount_applied
   • reconcile: filled 609 values across price/qty/total
   • fill_missing: quantity (median) (na 604->0)
+  • fill_missing: total_spent (median) (na 604->0)
   • fill_missing: discount_applied (mode=True) (na 4199->0)
-  • cap_outliers: total_spent (changed 60)
+  • fill_missing: item (categorical='Unknown') (na 1213->0)
+  • cap_outliers: total_spent (changed 157)
 
-✔ Cleaned dataset saved to: data/cleaned/retail_store_sales_cleaned.csv
-✔ Report saved to: reports/run_report.json
+✔ Cleaned dataset saved to data/cleaned/retail_store_sales_cleaned.csv
+✔ Report saved to reports/run_report.json
 ```
 
 ---
@@ -153,10 +156,10 @@ Example report summary from the retail dataset:
 | Metric | Before | After | Δ |
 |---|---:|---:|---:|
 | Rows | 12575 | 12575 | 0 |
-| Missing % | 5.23 | 0.88 | −4.35 |
+| Missing % | 5.23 | 0.00 | −5.23 |
 | Duplicate % | 0.00 | 0.00 | 0.00 |
 | Outlier % | 0.04 | 0.00 | −0.04 |
-| Health Score | 97.90 | 99.65 | +1.75 |
+| Health Score | 97.90 | 100.00 | +2.10 |
 
 ---
 
