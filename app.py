@@ -85,12 +85,19 @@ if run:
             with open(md_path, "r", encoding="utf-8") as f:
                 report_md = f.read()
 
+        html_path = report_path.replace(".json", ".html")
+        report_html = ""
+        if os.path.exists(html_path):
+            with open(html_path, "r", encoding="utf-8") as f:
+                report_html = f.read()
+
     st.session_state.result_key = {
         "profile_before": profile_before,
         "profile_after": profile_after,
         "actions": actions,
         "cleaned_bytes": cleaned_bytes,
         "report_md": report_md,
+        "report_html": report_html,
         "filename": uploaded.name,
     }
 
@@ -210,13 +217,13 @@ st.divider()
 
 # ── Downloads ─────────────────────────────────────────────────────────────────
 st.subheader("Download")
-dl1, dl2 = st.columns(2)
+dl1, dl2, dl3 = st.columns(3)
 
 stem = res["filename"].removesuffix(".csv")
 
 with dl1:
     st.download_button(
-        label="Download Cleaned CSV",
+        label="Cleaned CSV",
         data=res["cleaned_bytes"],
         file_name=f"{stem}_cleaned.csv",
         mime="text/csv",
@@ -224,9 +231,19 @@ with dl1:
     )
 
 with dl2:
+    if res["report_html"]:
+        st.download_button(
+            label="Report (HTML)",
+            data=res["report_html"],
+            file_name="autoclean_report.html",
+            mime="text/html",
+            use_container_width=True,
+        )
+
+with dl3:
     if res["report_md"]:
         st.download_button(
-            label="Download Report (Markdown)",
+            label="Report (Markdown)",
             data=res["report_md"],
             file_name="autoclean_report.md",
             mime="text/markdown",
