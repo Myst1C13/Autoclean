@@ -36,7 +36,7 @@ st.caption("Upload a CSV — AutoClean profiles it, fixes it, and shows you exac
 st.divider()
 
 # ── Upload ────────────────────────────────────────────────────────────────────
-uploaded = st.file_uploader("Drop your CSV here", type=["csv"], label_visibility="collapsed")
+uploaded = st.file_uploader("Drop your CSV or Excel file here", type=["csv", "xlsx", "xls"], label_visibility="collapsed")
 
 if not uploaded:
     st.info("Upload a CSV file above to get started.")
@@ -44,7 +44,8 @@ if not uploaded:
 
 # ── Preview ───────────────────────────────────────────────────────────────────
 with st.expander("Preview uploaded data", expanded=False):
-    preview_df = pd.read_csv(uploaded)
+    ext = uploaded.name.rsplit(".", 1)[-1].lower()
+    preview_df = pd.read_excel(uploaded) if ext in ("xlsx", "xls") else pd.read_csv(uploaded)
     st.dataframe(preview_df.head(20), use_container_width=True)
     uploaded.seek(0)
 
@@ -60,7 +61,8 @@ if "result_key" not in st.session_state:
 if run:
     with tempfile.TemporaryDirectory() as tmpdir:
         input_path = os.path.join(tmpdir, uploaded.name)
-        output_path = os.path.join(tmpdir, uploaded.name.replace(".csv", "_cleaned.csv"))
+        stem_name = uploaded.name.rsplit(".", 1)[0]
+        output_path = os.path.join(tmpdir, f"{stem_name}_cleaned.csv")
         report_path = os.path.join(tmpdir, "report.json")
 
         with open(input_path, "wb") as f:

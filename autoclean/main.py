@@ -18,15 +18,19 @@ def run_pipeline(input_path: str, output_path: str, report_path: Optional[str] =
     # -----------------------------
     # Load dataset (robust parsing)
     # -----------------------------
+    ext = os.path.splitext(input_path)[-1].lower()
     try:
-        df = pd.read_csv(
-            input_path,
-            na_values=["?", " ?"],        # ✅ UCI Adult-style missing markers
-            keep_default_na=True,
-            skipinitialspace=True         # ✅ trims leading spaces after commas
-        )
+        if ext in (".xlsx", ".xls"):
+            df = pd.read_excel(input_path, na_values=["?", " ?"])
+        else:
+            df = pd.read_csv(
+                input_path,
+                na_values=["?", " ?"],        # UCI Adult-style missing markers
+                keep_default_na=True,
+                skipinitialspace=True         # trims leading spaces after commas
+            )
     except Exception as e:
-        raise RuntimeError(f"Failed to read CSV: {input_path} ({type(e).__name__}: {e})")
+        raise RuntimeError(f"Failed to read {ext or 'file'}: {input_path} ({type(e).__name__}: {e})")
 
     # Normalize column names ONCE
     df.columns = (
